@@ -1,0 +1,189 @@
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="description" content="">
+      <meta name="author" content="">
+    
+      <title>Face Recognition</title>
+    
+      <!-- Custom fonts for this template-->
+      <link href="{{ url_for('static', filename='all.min.css') }}" rel="stylesheet" type="text/css">
+      <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+      <!-- Custom styles for this template-->
+      <link href="{{ url_for('static', filename='sb-admin-2.min.css') }}" rel="stylesheet">
+    
+      <script src="{{ url_for('static',filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+
+      <link href="{{ url_for('static', filename='dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+
+      <script src="{{ url_for('static', filename='jquery.dataTables.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='dataTables.bootstrap4.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='datatables-demo.js') }}"></script>
+      
+      <script type="text/javascript">
+      (function loop() {
+          setTimeout(function () {
+            $.ajax({
+              url: '/get_content',
+              type: 'GET',
+              dataType: 'json',
+              success: function(result){                
+                $.each(result.faces, function(key, value) {
+                  var name = value + '\\\n';
+                  name = name.replace('\\', '');
+                  $("#facenames").append(name);
+                });
+                
+                if (result.unrecognized != null || result.unrecognized != undefined) {                  
+                  $(".carousel-item.active").remove();
+                  $(".carousel-inner").append('<div class="carousel-item active">' +
+                                              '<img class="d-block w-100" src="data:image/jpeg;base64,' + result.unrecognized + '"></div>');
+                  }
+              },
+              error: function(result){
+                $("#facenames").append(result);                
+              }
+            });
+            loop()
+          }, 1000);
+        }());
+      </script>
+      <script type="text/javascript">
+        $.extend( true, $.fn.dataTable.defaults, {
+            "searching": false,
+            "ordering": false,
+            "scrollY": "200px",
+            "scrollCollapse": true,
+            "paging": false,
+            "info": false
+        } );
+        (function loop() {
+            setTimeout(function () {
+              $.ajax({
+                url: '/get_mysql',
+                type: 'GET',
+                dataType: 'json',
+                success: function(result){
+                  //console.log(result);
+                  var t = $('#dataTable').DataTable();
+                  $.each(result, function(key, value) {                    
+                    var cdata = value;
+                    var filteredData = t.column(0).data().filter( function ( value, index ) {                      
+                      return value == cdata.participant_name ? true : false;
+                    } );                    
+                    if (filteredData.length < 1) {
+                      t.row.add( [
+                        value.participant_name,
+                        value.datetime                      
+                      ]).draw(false);
+                    }                    
+                  });
+                },
+                error: function(result){
+                  $("#facenames").append(result);                
+                }
+              });
+              loop()
+            }, 60000);
+          }());
+        </script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <!-- Page Heading -->
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Face Recognition</h1>        
+      </div>
+      <div class="row">
+        <div class="col-xl-8 col-lg-7">
+          <div class="card shadow mb-2">
+              <a href="#collapseCardRT" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                  <h6 class="m-0 font-weight-bold text-primary">Recognized Faces - Real Time</h6>
+              </a>
+              <div class="collapse show" id="collapseCardRT">
+                <div class="card-body">              
+                  <img id="bg" src="{{ url_for('video_feed') }}">              
+                </div>
+              </div>
+          </div>
+        </div>
+        <div class="col-xl-4 col-lg-5">
+          <div class="card shadow mb-4">
+              <a href="#collapseCardNames" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                  <h6 class="m-0 font-weight-bold text-primary">Face Names</h6>
+              </a>
+              <div class="collapse show" id="collapseCardNames">
+                <div class="card-body">              
+                    <textarea name="textarea" id="facenames" rows="20" cols="35"></textarea>                    
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-xl-5 col-lg-5">
+          <div class="card shadow mb-4">
+              <!-- Card Header - Accordion -->
+              <a href="#collapseCardUnF" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                <h6 class="m-0 font-weight-bold text-primary">Unrecognized Faces</h6>
+              </a>
+              <!-- Card Content - Collapse -->
+              <div class="collapse show" id="collapseCardUnF">
+                <div class="card-body">
+                  <div id="carouselExampleSlidesOnly" class="carousel slide" data-ride="carousel">
+                    <div class="carousel-inner">                      
+                    </div>
+                  </div>
+                </div>
+              </div>
+          </div>
+        </div>
+        <div class="col-xl-7 col-lg-7">
+          <div class="card shadow mb-4">
+              <!-- Card Header - Accordion -->
+              <a href="#collapseCardMysql" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+                <h6 class="m-0 font-weight-bold text-primary">MySQL</h6>
+              </a>
+              <!-- Card Content - Collapse -->
+              <div class="collapse show" id="collapseCardMysql">
+                <div class="card-body">                    
+                  <div class="table-responsive">
+                    <table class="table table-bordered" id="dataTable" width="100%" cellspacing="0">
+                      <thead>
+                        <tr>
+                          <th>Participante</th>
+                          <th>Data/Hora de Chegada</th>                                       
+                        </tr>
+                      </thead>
+                      <tfoot>                            
+                      </tfoot>
+                      <tbody>                            
+                      </tbody>
+                    </table>
+                  </div>                    
+                </div>
+              </div>
+          </div>
+        </div>
+      </div>
+      <form role="form" action="{{ url_for('input_photo') }}" id="upload-file" method="get">
+        <div class="fb-button form-group field-button-upload">
+          <button type="submit" class="btn btn-success" name="button-add">Incluir Novo Participante</button>
+        </div>
+      </form>
+    </div>
+    <!-- Bootstrap core JavaScript-->
+    <!--<script src="{{ url_for('static', filename='jquery.min.js') }}"></script> -->
+    <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{{ url_for('static', filename='jquery.easing.min.js') }}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{{ url_for('static', filename='sb-admin-2.min.js') }}"></script>    
+  </body>
+</html>

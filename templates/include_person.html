@@ -1,0 +1,158 @@
+<html>
+  <head>
+      <meta charset="utf-8">
+      <meta http-equiv="X-UA-Compatible" content="IE=edge">
+      <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+      <meta name="description" content="">
+      <meta name="author" content="">
+    
+      <title>Face Recognition</title>
+    
+      <!-- Custom fonts for this template-->
+      <link href="{{ url_for('static', filename='all.min.css') }}" rel="stylesheet" type="text/css">
+      <link href="https://fonts.googleapis.com/css?family=Nunito:200,200i,300,300i,400,400i,600,600i,700,700i,800,800i,900,900i" rel="stylesheet">
+    
+      <!-- Custom styles for this template-->
+      <link href="{{ url_for('static', filename='sb-admin-2.min.css') }}" rel="stylesheet">
+    
+      <script src="{{ url_for('static',filename='jquery.min.js') }}"></script>
+      <script src="{{ url_for('static',filename='bootstrap.min.js') }}"></script>
+
+      <link href="{{ url_for('static', filename='dataTables.bootstrap4.min.css') }}" rel="stylesheet">
+
+      <script src="{{ url_for('static', filename='jquery.dataTables.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='dataTables.bootstrap4.min.js') }}"></script>
+      <script src="{{ url_for('static', filename='datatables-demo.js') }}"></script>
+    <!--
+      <script>
+        $(document).ready(function() {
+          $.ajax({
+            url: '/input_photo',
+            type: 'POST',
+            dataType: 'json',
+            data: {'photo': 'content', 'name': 'txtName'},
+            success: function(result){
+              var result = JSON.stringify(result);
+              console.log(result.status);
+            },
+            error: function(result){
+              $("#facenames").append(result);                
+            }
+          });
+
+          $('#upload-file-btn').click(function() {
+            var form_data = new FormData($('#upload-file')[0]);
+            $.ajax({
+                type: 'POST',
+                url: '/input_photo',
+                data: form_data,
+                contentType: false,
+                cache: false,
+                processData: false,
+                success: function(data) {
+                  console.log('Success!');
+                },
+            });
+          });
+
+        });
+      </script> 
+      -->
+      <script>
+          function PreviewImage() {
+            var oFReader = new FileReader();
+            oFReader.readAsDataURL(document.getElementById("file-photo").files[0]);
+
+            oFReader.onload = function (oFREvent) {
+                document.getElementById("photo-preview").src = oFREvent.target.result;
+            };
+          };        
+      </script>
+  </head>
+  <body>
+    <div class="container-fluid">
+      <!-- Page Heading -->
+      <div class="d-sm-flex align-items-center justify-content-between mb-4">
+        <h1 class="h3 mb-0 text-gray-800">Face Recognition</h1>        
+      </div>
+      <div class="row">
+        <div class="col-xl-8 col-lg-7">
+          <div class="card shadow mb-2">
+            <a href="#collapseCardRT" class="d-block card-header py-3" data-toggle="collapse" role="button" aria-expanded="true" aria-controls="collapseCardExample">
+              <h6 class="m-0 font-weight-bold text-primary">Incluir novo Participante</h6>
+            </a>
+            <div class="collapse show" id="collapseCardRT">
+              <div class="card-body">
+                {% if alert %}
+                  {% if alert['type'] == 'danger' %}
+                      <div class="alert alert-danger">
+                          {{ alert['msg'] }}
+                      </div>
+                  {% else %}
+                      <div class="alert alert-success">
+                          {{ alert['msg'] }}
+                      </div>
+                  {% endif %}
+                {% endif %}
+                <form role="form" action="{{ url_for('input_photo') }}" id="upload-file" enctype="multipart/form-data" method="post">
+                  <div class="rendered-form">
+                    <div class="fb-file form-group">
+                      <label for="file-photo" class="fb-file-label">Arquivo para Upload</label>
+                      <input type="file" class="form-control" name="file-photo" id="file-photo" onchange="PreviewImage();">
+                    </div>
+                    <div class="card-body">
+                      <div class="row no-gutters align-items-center">
+                        <img src="{{ url_for('static', filename='avatar.png') }}" id="photo-preview" />
+                      </div>  
+                    </div>
+                    <div class="fb-text form-group field-text-name">
+                      <label for="text-name" class="fb-text-label">Nome do Participante:</label>
+                      <input type="text" class="form-control" name="text-name" id="text-name">
+                    </div>
+                    <div class="fb-text form-group field-text-phone">
+                      <label for="text-phone" class="fb-text-label">Telefone do Participante:</label>
+                      <input type="text" class="form-control" name="text-phone" id="text-phone">
+                    </div>
+                    <div class="fb-text form-group field-text-email">
+                      <label for="text-email" class="fb-text-label">E-mail do Participante:</label>
+                      <input type="text" class="form-control" name="text-email" id="text-email">
+                    </div>                  
+                    <div class="fb-button form-group field-button-upload">
+                      <button type="submit" class="btn btn-success" name="button-upload" id="button-upload">Upload</button>
+                    </div>
+                  </div>
+                </form>
+              </div>
+            </div>
+            
+          </div>
+        </div>      
+      </div>
+      <form role="form" action="{{ url_for('index') }}" id="go-back" method="get">
+        <div class="fb-button form-group field-button-upload">
+          <button type="submit" class="btn btn-success" name="button-back">Voltar</button>
+        </div>
+      </form>
+    </div>
+    <!-- Bootstrap core JavaScript-->
+    <!--<script src="{{ url_for('static', filename='jquery.min.js') }}"></script> -->
+    <script src="{{ url_for('static', filename='bootstrap.bundle.min.js') }}"></script>
+
+    <!-- Core plugin JavaScript-->
+    <script src="{{ url_for('static', filename='jquery.easing.min.js') }}"></script>
+
+    <!-- Custom scripts for all pages-->
+    <script src="{{ url_for('static', filename='sb-admin-2.min.js') }}"></script>
+
+    <script type="text/javascript">
+      $(document).ready(function () {
+          window.setTimeout(function() {
+              $(".alert").fadeTo(1000, 0).slideUp(1000, function(){
+                  $(this).remove();
+                  //$.unblockUI();
+              });
+          }, 3000);     
+      });
+  </script>
+  </body>
+</html>
